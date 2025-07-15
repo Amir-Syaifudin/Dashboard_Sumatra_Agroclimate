@@ -330,8 +330,7 @@ server <- function(input, output, session) {
       color = "purple"
     )
   })
-  
-  # Output Tabel
+
   output$tabel_produksi <- renderDT({
     datatable(produksi_data(), options = list(pageLength = 10, scrollX = TRUE))
   })
@@ -373,13 +372,11 @@ server <- function(input, output, session) {
     )
     df
   })
-  
-  # Event: Jalankan regresi
+
   model_regresi <- eventReactive(input$jalankan_regresi, {
     lm(Produksi ~ Suhu + CurahHujan, data = data_analisis())
   })
   
-  # Output ringkasan regresi
   output$regresi_output <- renderPrint({
     req(model_regresi())
     summary(model_regresi())
@@ -509,7 +506,6 @@ server <- function(input, output, session) {
     )
   })
   
-  # Update filter choices for Tren Tahunan tab
   observe({
     df <- gabung_data()
     updateSelectInput(
@@ -613,7 +609,6 @@ server <- function(input, output, session) {
     datatable(df, options = list(pageLength = 10, searching = FALSE))
   })
   
-  # Update filter choices for Perbandingan Komoditas tab
   observe({
     df <- gabung_data()
     
@@ -770,7 +765,7 @@ server <- function(input, output, session) {
                                "KEPULAUAN RIAU" = "Kepulauan Riau",
                                "BANGKA BELITUNG" = "Kepulauan Bangka Belitung"
       )) %>%
-      filter(Propinsi %in% provinsi_sumatera) %>%  # <- Tambahkan ini!
+      filter(Propinsi %in% provinsi_sumatera) %>%  
       left_join(df_agg, by = c("Propinsi" = "Provinsi"))
     
     
@@ -784,7 +779,6 @@ server <- function(input, output, session) {
       rep(NA_real_, nrow(shp))
     }
     
-    # VALIDASI
     validate(
       need(!is.null(layer_value) && any(!is.na(layer_value)), "Data untuk peta tidak tersedia.")
     )
