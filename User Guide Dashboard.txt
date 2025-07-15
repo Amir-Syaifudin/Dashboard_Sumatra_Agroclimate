@@ -1,0 +1,52 @@
+
+User Guide – Sumatra Agroclimate Dashboard
+==========================================
+
+1. Persiapan Awal
+-----------------
+Sebelum menjalankan dashboard, pastikan:
+- Semua file input tersedia dalam direktori kerja, yaitu:
+  - Perkebunan_Sumatra.xlsx (data produksi perkebunan)
+  - Iklim_Sumatra.xlsx (data suhu dan curah hujan)
+  - indonesia-prov.geojson (data spasial batas provinsi)
+- Anda telah menginstal R dan RStudio, serta library berikut:
+  install.packages(c("shiny", "shinydashboard", "readxl", "DT", "dplyr", 
+                     "ggplot2", "plotly", "leaflet", "sf"))
+
+2. Menjalankan Aplikasi
+-----------------------
+1. Buka RStudio.
+2. Buka folder proyek yang berisi file dashboard.
+3. Jalankan perintah:
+   shiny::runApp()
+4. Dashboard akan terbuka di browser secara otomatis.
+
+3. Struktur Menu dan Fungsinya
+------------------------------
+Berikut adalah struktur menu dan fungsinya:
+- Beranda: Penjelasan umum, tujuan aplikasi, serta video tutorial.
+- Tren Tahunan: Menampilkan tren produksi tahunan berdasarkan komoditas dan provinsi.
+- Perbandingan Komoditas: Membandingkan produksi antar komoditas atau wilayah.
+- Analisis Hubungan: Visualisasi dan hasil regresi antara suhu, curah hujan, dan produksi.
+- Peta: Peta interaktif produksi dan kondisi iklim per provinsi.
+- Tabel Data: Menampilkan data mentah dengan fitur unduh (.csv).
+- Metadata: Deskripsi tiap variabel dalam data.
+
+4. Fitur Interaktif
+-------------------
+- Dropdown Filter: Pilih provinsi, komoditas, dan tahun.
+- Hover dan Zoom: Aktif di grafik dan peta.
+- Unduh Data: Tersedia tombol unduh pada Tabel Data.
+- Interpretasi Otomatis: Untuk hasil korelasi dan regresi.
+
+5. Tips Penggunaan
+------------------
+- Gunakan “Perbandingan Komoditas” untuk memilih komoditas unggulan antarwilayah.
+- Perhatikan nilai R² dan signifikansi pada menu “Analisis Hubungan”.
+- Gunakan peta untuk menganalisis distribusi spasial.
+
+6. Troubleshooting
+------------------
+- Grafik tidak muncul: Pastikan data lengkap dan format input benar.
+- Peta tidak tampil: Periksa koneksi dan file geojson.
+- Error saat runApp(): Pastikan semua library sudah terinstal dan file input tersedia.
