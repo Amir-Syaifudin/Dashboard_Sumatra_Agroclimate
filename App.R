@@ -710,6 +710,7 @@ server <- function(input, output, session) {
     updateSelectInput(session, "peta_komoditas",
                       choices = c("Semua", sort(unique(df$Komoditas))))
   })
+  
 output$peta_produksi <- renderLeaflet({
   df <- gabung_data()
   tahun <- input$peta_tahun
@@ -748,88 +749,89 @@ output$peta_produksi <- renderLeaflet({
 
   df_agg_valid <- df_agg %>%
     filter(!is.na(Produksi), Produksi > 0)
-    
-    provinsi_sumatera <- c(
-      "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
-      "Jambi", "Bengkulu", "Sumatera Selatan", "Kepulauan Bangka Belitung", "Lampung"
-    )
-    
-    shp <- shape_sumatera() %>%
-      mutate(Propinsi = trimws(Propinsi)) %>%
-      mutate(Propinsi = recode(Propinsi,
-                               "DI. ACEH" = "Aceh",
-                               "SUMATERA UTARA" = "Sumatera Utara",
-                               "SUMATERA BARAT" = "Sumatera Barat",
-                               "RIAU" = "Riau",
-                               "JAMBI" = "Jambi",
-                               "SUMATERA SELATAN" = "Sumatera Selatan",
-                               "BENGKULU" = "Bengkulu",
-                               "LAMPUNG" = "Lampung",
-                               "KEPULAUAN RIAU" = "Kepulauan Riau",
-                               "BANGKA BELITUNG" = "Kepulauan Bangka Belitung"
-      )) %>%
-      filter(Propinsi %in% provinsi_sumatera) %>%  
-      left_join(df_agg, by = c("Propinsi" = "Provinsi"))
-    
-    
-    layer_value <- if (jenis == "Produksi") {
-      df_agg$Produksi
-    } else if (komoditas_input == "Suhu") {
-      df_agg$Suhu
-    } else if (komoditas_input == "CurahHujan") {
-      df_agg$CurahHujan
-    } else {
-      rep(NA_real_, nrow(shp))
-    }
-    
-    validate(
-      need(!is.null(layer_value) && any(!is.na(layer_value)), "Data untuk peta tidak tersedia.")
-    )
-    if (all(is.na(layer_value))) {
-      showNotification("Data tidak tersedia atau kosong untuk pilihan ini.", type = "error")
-      return(NULL)
-    }
-    
-    pal <- colorNumeric("YlOrRd", domain = layer_value, na.color = "transparent")
-    
-    label_unit <- case_when(
-      jenis == "Produksi" ~ " Ribu Ton",
-      komoditas_input == "Suhu" ~ " °C",
-      komoditas_input == "CurahHujan" ~ " mm",
-      TRUE ~ ""
-    )
-    
-    label_popup <- paste0(shp$Propinsi, ": ", round(layer_value, 2), label_unit)
-    
-    
-    leaflet(shp) %>%
-      addTiles() %>%
-      addPolygons(
-        fillColor = ~pal(layer_value),
-        weight = 1,
-        opacity = 1,
-        color = "white",
-        dashArray = "3",
+
+  provinsi_sumatera <- c(
+    "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
+    "Jambi", "Bengkulu", "Sumatera Selatan", "Kepulauan Bangka Belitung", "Lampung"
+  )
+
+  shp <- shape_sumatera() %>%
+    mutate(Propinsi = trimws(Propinsi)) %>%
+    mutate(Propinsi = recode(Propinsi,
+                             "DI. ACEH" = "Aceh",
+                             "SUMATERA UTARA" = "Sumatera Utara",
+                             "SUMATERA BARAT" = "Sumatera Barat",
+                             "RIAU" = "Riau",
+                             "JAMBI" = "Jambi",
+                             "SUMATERA SELATAN" = "Sumatera Selatan",
+                             "BENGKULU" = "Bengkulu",
+                             "LAMPUNG" = "Lampung",
+                             "KEPULAUAN RIAU" = "Kepulauan Riau",
+                             "BANGKA BELITUNG" = "Kepulauan Bangka Belitung"
+    )) %>%
+    filter(Propinsi %in% provinsi_sumatera) %>%
+    left_join(df_agg_valid, by = c("Propinsi" = "Provinsi"))
+
+  layer_value <- if (jenis == "Produksi") {
+    shp$Produksi
+  } else if (komoditas_input == "Suhu") {
+    shp$Suhu
+  } else if (komoditas_input == "CurahHujan") {
+    shp$CurahHujan
+  } else {
+    rep(NA_real_, nrow(shp))
+  }
+
+  validate(
+    need(!is.null(layer_value) && any(!is.na(layer_value)), "Data untuk peta tidak tersedia.")
+  )
+
+  if (all(is.na(layer_value))) {
+    showNotification("Data tidak tersedia atau kosong untuk pilihan ini.", type = "error")
+    return(NULL)
+  }
+
+  pal <- colorNumeric("YlOrRd", domain = layer_value, na.color = "transparent")
+
+  label_unit <- case_when(
+    jenis == "Produksi" ~ " Ribu Ton",
+    komoditas_input == "Suhu" ~ " °C",
+    komoditas_input == "CurahHujan" ~ " mm",
+    TRUE ~ ""
+  )
+
+  label_popup <- paste0(shp$Propinsi, ": ", round(layer_value, 2), label_unit)
+
+  leaflet(shp) %>%
+    addTiles() %>%
+    addPolygons(
+      fillColor = ~pal(layer_value),
+      weight = 1,
+      opacity = 1,
+      color = "white",
+      dashArray = "3",
+      fillOpacity = 0.7,
+      highlightOptions = highlightOptions(
+        weight = 2,
+        color = "#666",
+        dashArray = "",
         fillOpacity = 0.7,
-        highlightOptions = highlightOptions(
-          weight = 2,
-          color = "#666",
-          dashArray = "",
-          fillOpacity = 0.7,
-          bringToFront = TRUE),
-        label = label_popup
-      ) %>%
-      addLegend(
-        pal = pal,
-        values = layer_value,
-        opacity = 0.7,
-        position = "bottomright",
-        title = if (jenis == "Produksi") "Produksi (ribu ton)" 
-        else if (komoditas_input == "Suhu") "Suhu (°C)" 
-        else "Curah Hujan (mm)"
-      ) %>%
-      fitBounds(lng1 = 95, lat1 = -6.5, lng2 = 106, lat2 = 6)
-  })
+        bringToFront = TRUE
+      ),
+      label = label_popup
+    ) %>%
+    addLegend(
+      pal = pal,
+      values = layer_value,
+      opacity = 0.7,
+      position = "bottomright",
+      title = if (jenis == "Produksi") "Produksi (ribu ton)"
+      else if (komoditas_input == "Suhu") "Suhu (°C)"
+      else "Curah Hujan (mm)"
+    ) %>%
+    fitBounds(lng1 = 95, lat1 = -6.5, lng2 = 106, lat2 = 6)
+})
+
   output$peta_jenis_ui <- renderUI({
     selectInput("peta_jenis", "Jenis Peta:",
                 choices = c("Produksi", "Iklim"),
