@@ -60,7 +60,7 @@ ui <- dashboardPage(
                 solidHeader = TRUE,
                 width = 12,
                 tags$iframe(
-                  src = "https://drive.google.com/file/d/1i--87QUTajG-IOwoX_9uGizmJjL86FQQ/preview",
+                  src = "https://drive.google.com/file/d/1kF20mu5mF_07P_2G9HiBzx5HnPlwKF1T/preview",
                   width = "100%",
                   height = "400px",
                   frameborder = "0",
