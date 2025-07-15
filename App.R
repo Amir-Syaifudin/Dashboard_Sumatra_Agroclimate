@@ -710,41 +710,44 @@ server <- function(input, output, session) {
     updateSelectInput(session, "peta_komoditas",
                       choices = c("Semua", sort(unique(df$Komoditas))))
   })
-  output$peta_produksi <- renderLeaflet({
-    df <- gabung_data()
-    tahun <- input$peta_tahun
-    jenis <- input$peta_jenis
-    komoditas_input <- input$peta_komoditas
-    
-    df <- df %>% filter(Tahun == tahun)
-    
-    if (jenis == "Produksi") {
-      if (komoditas_input != "Semua") {
-        df <- df %>% filter(Komoditas == komoditas_input)
-      }
+output$peta_produksi <- renderLeaflet({
+  df <- gabung_data()
+  tahun <- input$peta_tahun
+  jenis <- input$peta_jenis
+  komoditas_input <- input$peta_komoditas
+
+  df <- df %>% filter(Tahun == tahun)
+
+  if (jenis == "Produksi") {
+    if (komoditas_input != "Semua") {
+      df <- df %>% filter(Komoditas == komoditas_input)
     }
-    
-    df_agg <- df %>%
-      group_by(Provinsi) %>%
-      summarise(
-        Produksi = sum(Produksi, na.rm = TRUE),
-        Suhu = mean(Suhu, na.rm = TRUE),
-        CurahHujan = sum(CurahHujan, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      mutate(Provinsi_Join = case_when(
-        Provinsi == "Aceh" ~ "DI. ACEH",
-        Provinsi == "Sumatera Utara" ~ "SUMATERA UTARA",
-        Provinsi == "Sumatera Barat" ~ "SUMATERA BARAT",
-        Provinsi == "Riau" ~ "RIAU",
-        Provinsi == "Jambi" ~ "JAMBI",
-        Provinsi == "Sumatera Selatan" ~ "SUMATERA SELATAN",
-        Provinsi == "Bengkulu" ~ "BENGKULU",
-        Provinsi == "Lampung" ~ "LAMPUNG",
-        Provinsi == "Kepulauan Riau" ~ "KEPULAUAN RIAU",
-        Provinsi == "Kepulauan Bangka Belitung" ~ "BANGKA BELITUNG",
-        TRUE ~ Provinsi
-      ))
+  }
+
+  df_agg <- df %>%
+    group_by(Provinsi) %>%
+    summarise(
+      Produksi = sum(Produksi, na.rm = TRUE),
+      Suhu = mean(Suhu, na.rm = TRUE),
+      CurahHujan = sum(CurahHujan, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(Provinsi_Join = case_when(
+      Provinsi == "Aceh" ~ "DI. ACEH",
+      Provinsi == "Sumatera Utara" ~ "SUMATERA UTARA",
+      Provinsi == "Sumatera Barat" ~ "SUMATERA BARAT",
+      Provinsi == "Riau" ~ "RIAU",
+      Provinsi == "Jambi" ~ "JAMBI",
+      Provinsi == "Sumatera Selatan" ~ "SUMATERA SELATAN",
+      Provinsi == "Bengkulu" ~ "BENGKULU",
+      Provinsi == "Lampung" ~ "LAMPUNG",
+      Provinsi == "Kepulauan Riau" ~ "KEPULAUAN RIAU",
+      Provinsi == "Kepulauan Bangka Belitung" ~ "BANGKA BELITUNG",
+      TRUE ~ Provinsi
+    ))
+
+  df_agg_valid <- df_agg %>%
+    filter(!is.na(Produksi), Produksi > 0)
     
     provinsi_sumatera <- c(
       "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
