@@ -827,7 +827,7 @@ server <- function(input, output, session) {
         values = layer_value,
         opacity = 0.7,
         position = "bottomright",
-        title = if (jenis == "Produksi") "Produksi (ton)" 
+        title = if (jenis == "Produksi") "Produksi (ribu ton)" 
         else if (komoditas_input == "Suhu") "Suhu (°C)" 
         else "Curah Hujan (mm)"
       ) %>%
